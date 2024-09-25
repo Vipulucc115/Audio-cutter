@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import WaveSurfer from 'wavesurfer.js';
 import { Box, Button, Slider } from '@mantine/core';
+import { audioFileAtom, endTimeAtom, startTimeAtom } from '@/context/atoms';
 
-interface WaveformPlayerProps {
-  audioFile: File | null;
-  startTime: number;
-  endTime: number;
-}
-
-const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ audioFile, startTime, endTime }) => {
+const WaveformPlayer = () => {
   const waveformRef = useRef<HTMLDivElement>(null);
+  const audioFile = useRecoilValue(audioFileAtom);
+  const startTime = useRecoilValue(startTimeAtom);
+  const endTime = useRecoilValue(endTimeAtom);
   const [waveSurfer, setWaveSurfer] = useState<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -30,7 +29,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ audioFile, startTime, e
       });
       setWaveSurfer(ws);
     }
-  }, [waveformRef, waveSurfer]);
+  }, [waveformRef, waveSurfer, startTime, endTime, audioFile]);
 
   // Load the audio file into WaveSurfer
   useEffect(() => {
@@ -43,7 +42,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ audioFile, startTime, e
         }
       };
     }
-  }, [waveSurfer, audioFile]);
+  }, [waveSurfer, audioFile, startTime, endTime]);
 
   // Adjust playback to start and end times
   useEffect(() => {
@@ -67,22 +66,22 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ audioFile, startTime, e
     return () => {
       waveSurfer?.destroy(); // Clean up when component unmounts
     };
-  }, [waveSurfer, startTime, endTime]);
+  }, [waveSurfer, audioFile, startTime, endTime]);
 
-  // Make the waveform responsive
-  useEffect(() => {
-    const handleResize = () => {
-      if (waveSurfer && waveformRef.current) {
-        waveSurfer.drawBuffer; // Redraw the waveform on resize
-      }
-    };
+  // // Make the waveform responsive
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (waveSurfer && waveformRef.current) {
+  //       waveSurfer.drawBuffer; // Redraw the waveform on resize
+  //     }
+  //   };
 
-    window.addEventListener('resize', handleResize);
+  //   window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [waveSurfer]);
+  //   return () => {
+  //     window.removeEventListener('resize', handleResize);
+  //   };
+  // }, [waveSurfer]);
 
   const handlePlayPause = () => {
     if (waveSurfer) {

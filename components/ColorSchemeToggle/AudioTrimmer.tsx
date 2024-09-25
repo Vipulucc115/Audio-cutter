@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRecoilState } from 'recoil';
 import {
   Box,
   Button,
@@ -11,19 +12,20 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import { audioFileAtom, endTimeAtom, startTimeAtom } from '@/context/atoms';
 import WaveformPlayer from './WaveformPlayer';
 
 export default function BasicAudioCutterUI() {
   const [showTrimmer, setShowTrimmer] = useState(false); // State to toggle visibility of Audio Trimmer
-  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useRecoilState(audioFileAtom);
+
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
-  const [startTime, setStartTime] = useState<number>(0);
-  const [endTime, setEndTime] = useState<number>(0);
+  const [startTime, setStartTime] = useRecoilState(startTimeAtom);
+  const [endTime, setEndTime] = useRecoilState(endTimeAtom);
   const audioContextRef = React.useRef<AudioContext | null>(null);
 
   // Function to handle file upload
   const handleFileUpload = async (file: File) => {
-    setAudioFile(file);
     const arrayBuffer = await file.arrayBuffer();
 
     if (!audioContextRef.current) {
@@ -31,6 +33,7 @@ export default function BasicAudioCutterUI() {
     }
 
     const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+    setAudioFile(file);
     setAudioBuffer(buffer);
     setEndTime(buffer.duration); // Set end time to audio duration
   };
@@ -147,33 +150,187 @@ export default function BasicAudioCutterUI() {
           <Button variant="subtle" color="white" fullWidth onClick={() => setShowTrimmer(false)}>
             HOME {/* Button to go back to Browse Files */}
           </Button>
-          <Button variant="subtle" color="gray" fullWidth>
-            Remover
+          <Button
+            variant="subtle"
+            color="gray"
+            fullWidth
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} // Flexbox for vertical alignment
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-eraser"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3" />
+              <path d="M18 13.3l-6.3 -6.3" />
+            </svg>
+
+            {/* Text placed below the SVG */}
+            <span style={{ marginLeft: '8px' }}>Remover</span>
           </Button>
+
           <Button variant="subtle" color="gray" fullWidth>
-            Splitter
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-triangle"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+            </svg>
+            {/* Text outside the SVG */}
+            <span style={{ marginLeft: '8px' }}>Splitter</span>
           </Button>
+
           <Button variant="subtle" color="gray" fullWidth>
-            Pitcher
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-letter-y-small"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M10 8l2 5l2 -5" />
+              <path d="M12 16v-3" />
+            </svg>
+            <span style={{ marginLeft: '8px', fontSize: '18px' }}>Pitcher</span>{' '}
+            {/* Spacing between the icon and the text */}
           </Button>
-          <Button variant="subtle" color="gray" fullWidth>
-            Key BPM Finder
+          <Button variant="subtle" color="gray" fullWidth display="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-triangle-off"
+              style={{ marginRight: '8px' }} // Space between the icon and text
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M7.825 7.83l-5.568 9.295a1.914 1.914 0 0 0 1.636 2.871h16.107m1.998 -1.99a1.913 1.913 0 0 0 -.255 -.88l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0l-1.028 1.718" />
+              <path d="M3 3l18 18" />
+            </svg>
+            <span>Key BPM Finder</span>
           </Button>
-          <Button variant="filled" color="violet" fullWidth onClick={() => setShowTrimmer(true)}>
-            Cutter
+          <Button
+            variant="filled"
+            color="violet"
+            fullWidth
+            display="flex"
+            onClick={() => setShowTrimmer(true)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-cut"
+              style={{ marginRight: '8px' }} // Space between the icon and text
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M7 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+              <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+              <path d="M9.15 14.85l8.85 -10.85" />
+              <path d="M6 4l8.85 10.85" />
+            </svg>
+            <span>Cutter</span>
           </Button>
-          <Button variant="subtle" color="gray" fullWidth>
-            Joiner
+          <Button variant="subtle" color="gray" fullWidth display="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-arrows-join-2"
+              style={{ marginRight: '8px' }} // Space between the icon and text
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 7h1.948c1.913 0 3.705 .933 4.802 2.5a5.861 5.861 0 0 0 4.802 2.5h6.448" />
+              <path d="M3 17h1.95a5.854 5.854 0 0 0 4.798 -2.5a5.854 5.854 0 0 1 4.798 -2.5h5.454" />
+              <path d="M18 15l3 -3l-3 -3" />
+            </svg>
+            <span>Joiner</span>
           </Button>
-          <Button variant="subtle" color="gray" fullWidth>
-            Recorder
+
+          <Button variant="subtle" color="gray" fullWidth display="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-microphone"
+              style={{ marginRight: '8px' }} // Space between the icon and text
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M9 2m0 3a3 3 0 0 1 3 -3h0a3 3 0 0 1 3 3v5a3 3 0 0 1 -3 3h0a3 3 0 0 1 -3 -3z" />
+              <path d="M5 10a7 7 0 0 0 14 0" />
+              <path d="M8 21l8 0" />
+              <path d="M12 17l0 4" />
+            </svg>
+            <span>Recorder</span>
           </Button>
-          <Button variant="subtle" color="gray" fullWidth>
-            Support
+
+          <Button variant="subtle" color="gray" fullWidth display="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="icon icon-tabler icons-tabler-filled icon-tabler-help-octagon"
+              style={{ marginRight: '8px' }} // Space between the icon and text
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M14.897 1a4 4 0 0 1 2.664 1.016l.165 .156l4.1 4.1a4 4 0 0 1 1.168 2.605l.006 .227v5.794a4 4 0 0 1 -1.016 2.664l-.156 .165l-4.1 4.1a4 4 0 0 1 -2.603 1.168l-.227 .006h-5.795a3.999 3.999 0 0 1 -2.664 -1.017l-.165 -.156l-4.1 -4.1a4 4 0 0 1 -1.168 -2.604l-.006 -.227v-5.794a4 4 0 0 1 1.016 -2.664l.156 -.165l4.1 -4.1a4 4 0 0 1 2.605 -1.168l.227 -.006h5.793zm-2.897 14a1 1 0 0 0 -.993 .883l-.007 .117l.007 .127a1 1 0 0 0 1.986 0l.007 -.117l-.007 -.127a1 1 0 0 0 -.993 -.883zm1.368 -6.673a2.98 2.98 0 0 0 -3.631 .728a1 1 0 0 0 1.44 1.383l.171 -.18a.98 .98 0 0 1 1.11 -.15a1 1 0 0 1 -.34 1.886l-.232 .012a1 1 0 0 0 .111 1.994a3 3 0 0 0 1.371 -5.673z" />
+            </svg>
+
+            <span style={{ marginLeft: 'auto', fontSize: '0.875rem', color: 'gray.500' }}>
+              Support
+            </span>
           </Button>
         </div>
         <Button variant="subtle" color="gray" fullWidth>
-          🇬🇧
+          <span style={{ fontSize: '36px' }}>🇬🇧</span> {/* Adjust fontSize as needed */}
         </Button>
       </Box>
 
@@ -216,9 +373,24 @@ export default function BasicAudioCutterUI() {
               }}
             />
 
-            {/* Show waveform after file is uploaded */}
             {audioFile && (
-              <WaveformPlayer audioFile={audioFile} startTime={startTime} endTime={endTime} />
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '80%', // Ensure it takes full width
+                  height: 'calc(100vh - 200px)', // Leave space for the header/footer or other elements
+                }}
+              >
+                <WaveformPlayer
+                  style={{
+                    width: '100%',
+                    maxWidth: '1200px', // Limit the width for larger screens
+                    margin: '50 auto', // Center the waveform horizontally
+                  }}
+                />
+              </div>
             )}
 
             {/* Show trimming options if audio is loaded */}
@@ -242,7 +414,7 @@ export default function BasicAudioCutterUI() {
                     position: 'fixed',
                     bottom: 0,
                     left: 0,
-                    width: '100%',
+                    width: 'calc(100% - 10px)',
                     backgroundColor: '#16161A',
                     padding: '10px 20px',
                     display: 'flex',
@@ -258,7 +430,7 @@ export default function BasicAudioCutterUI() {
                       max={audioBuffer.duration}
                       step={0.01}
                       value={startTime}
-                      onChange={(value) => setStartTime((value as number) || 0)}
+                      onChange={(value) => setStartTime(value as number)}
                       style={{ width: '150px' }} // Adjust input width
                       styles={{
                         label: {
@@ -274,7 +446,11 @@ export default function BasicAudioCutterUI() {
                       max={audioBuffer.duration}
                       step={0.01}
                       value={endTime}
-                      onChange={(value) => setEndTime((value as number) || audioBuffer.duration)}
+                      onChange={(value) => {
+                        const val = value as number;
+                        if (val > audioBuffer.duration) return setEndTime(audioBuffer.duration);
+                        setEndTime(val);
+                      }}
                       style={{ width: '150px' }} // Adjust input width
                       styles={{
                         label: {
