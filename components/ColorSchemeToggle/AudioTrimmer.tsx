@@ -383,13 +383,7 @@ export default function BasicAudioCutterUI() {
                   height: 'calc(100vh - 200px)', // Leave space for the header/footer or other elements
                 }}
               >
-                <WaveformPlayer
-                  style={{
-                    width: '100%',
-                    maxWidth: '1200px', // Limit the width for larger screens
-                    margin: '50 auto', // Center the waveform horizontally
-                  }}
-                />
+                <WaveformPlayer />
               </div>
             )}
 
